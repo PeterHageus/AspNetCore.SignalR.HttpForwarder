@@ -2,11 +2,13 @@
 
 Provides scale-out support for ASP.NET Core SignalR using an HTTP forwarder to dispatch messages to all server instances.
 
-Based on [AspNetCore.SignalR.AzureServiceBus by Thomas Levesque](https://github.com/thomaslevesque/AspNetCore.SignalR.AzureServiceBus)
+Based on [AspNetCore.SignalR.AzureServiceBus](https://github.com/thomaslevesque/AspNetCore.SignalR.AzureServiceBus) by Thomas Levesque
 
 ## Status 
 
-This is currently experimental.
+This is currently experimental. Only tested with Asp.Net Core 3.1.
+
+(build is pending)
 
 ## How to use it
 
