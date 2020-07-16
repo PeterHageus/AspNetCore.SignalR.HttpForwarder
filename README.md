@@ -34,7 +34,7 @@ Example reading from config:
  services.AddTransient<IOtherNodesProvider, StaticNodesFromConfig>();
 ```
 
-Then map an endpoint to receive messages from other nodes om `Startup.Configure`
+Then map an endpoint to receive messages from other nodes in `Startup.Configure`
 
 ```csharp
 app.UseEndpoints(endpoints =>
