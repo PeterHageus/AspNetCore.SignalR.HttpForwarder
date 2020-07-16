@@ -8,8 +8,6 @@ Based on [AspNetCore.SignalR.AzureServiceBus](https://github.com/thomaslevesque/
 
 This is currently experimental. Only tested with Asp.Net Core 3.1.
 
-(build is pending)
-
 ## How to use it
 
 Install the `AspNetCore.SignalR.HttpForwarder` package, and add this to your `Startup.ConfigureServices` method:
