@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reactive.Subjects;
 using AspNetCore.SignalR.HttpForwarder;
 using AspNetCore.SignalR.HttpForwarder.Internal;
 using Microsoft.AspNetCore.Builder;
@@ -26,6 +27,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.Services.AddSingleton(new SignalRHttpForwarderOptions());
             else
                 builder.Services.Configure(configureOptions);
+
+            builder.Services.AddSingleton<Subject<MessageHook>>();
+            builder.Services.AddTransient<IObserver<MessageHook>>(s => s.GetRequiredService<Subject<MessageHook>>());
+            builder.Services.AddTransient<IObservable<MessageHook>>(s => s.GetRequiredService<Subject<MessageHook>>());
 
             builder.Services.AddSingleton<IMessageSenderProvider, MessageSenderProvider>();
             builder.Services.AddSingleton(typeof(MessageSenderHubLifetimeManager<>));

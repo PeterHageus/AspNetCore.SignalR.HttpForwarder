@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.SignalR.HttpForwarder.Internal;
 using AspNetCore.SignalR.HttpForwarder.TestApp;
+using AspNetCore.SignalR.HttpForwarder.TestApp.Hubs;
+using FluentAssertions.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
@@ -56,6 +58,56 @@ namespace AspNetCore.SignalR.HttpForwarder.IntegrationTests
             await targetReceived.WaitAsync(5000);
 
             targetReceivedMessage.Should().Be(actual);
+        }
+        
+        [Fact]
+        public async Task Propagates_hooks()
+        {
+            var sourceProxys = new ListNodeProvider();
+            var source = CreateServer("source", sourceProxys);
+            var target = CreateServer("target", new ListNodeProvider());
+            var sourceClient = CreateClient(source);
+            var targetClient = CreateClient(target);
+
+            sourceProxys.Add(new Node(target.BaseAddress, () => target.CreateClient()));
+
+            await sourceClient.StartAsync();
+            await targetClient.StartAsync();
+
+            var message = "This is the message";
+            var tcsA = new TaskCompletionSource<MessageHook>();
+            var tcsB = new TaskCompletionSource<MessageHook>();
+            
+            var cancel = new CancellationTokenSource(10.Seconds());
+            cancel.Token.Register(() =>
+            {
+                tcsA.TrySetCanceled();
+                tcsB.TrySetCanceled();
+            });
+
+            source
+                .Services
+                .GetRequiredService<IObservable<MessageHook>>()
+                .Subscribe(x => tcsA.TrySetResult(x));  
+            
+            target
+                .Services
+                .GetRequiredService<IObservable<MessageHook>>()
+                .Subscribe(x => tcsB.TrySetResult(x));
+
+            await sourceClient.SendAsync("SendMessageAsync", message);
+
+            var actualA = await tcsA.Task;
+
+            actualA.HubTypeName.Should().Be(typeof(ChatroomHub).AssemblyQualifiedName);
+            actualA.Method.Should().Be("ReceiveMessage");
+            actualA.Args[0].Should().Be(message);
+            
+            var actualB = await tcsB.Task;
+            
+            actualB.HubTypeName.Should().Be(typeof(ChatroomHub).AssemblyQualifiedName);
+            actualB.Method.Should().Be("ReceiveMessage");
+            actualB.Args[0].Should().Be(message);
         }
 
         [Fact]

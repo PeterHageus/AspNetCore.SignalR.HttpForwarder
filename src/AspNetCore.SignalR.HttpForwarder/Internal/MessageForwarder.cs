@@ -18,12 +18,14 @@ namespace AspNetCore.SignalR.HttpForwarder.Internal
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly List<Task> _running = new List<Task>();
         private readonly IOtherNodesProvider _other;
+        private readonly IObserver<MessageHook> _hooks;
 
-        public MessageForwarder(ILogger<MessageForwarder> log, SignalRHttpForwarderOptions options, IOtherNodesProvider other)
+        public MessageForwarder(ILogger<MessageForwarder> log, SignalRHttpForwarderOptions options, IOtherNodesProvider other, IObserver<MessageHook> hooks)
         {
             _log = log;
             _options = options;
             _other = other;
+            _hooks = hooks;
         }
 
         private async Task PublishAsync(Node node, SignalRMessage message)
@@ -76,6 +78,8 @@ namespace AspNetCore.SignalR.HttpForwarder.Internal
 
         public async Task PublishAsync(SignalRMessage message)
         {
+            _hooks.OnNext(new MessageHook(message.HubTypeName, message.Method, message.Args));
+            
             foreach (var other in _buffers)
                 await other.Add(message);
         }
