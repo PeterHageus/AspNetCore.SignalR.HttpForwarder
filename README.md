@@ -4,6 +4,10 @@ Provides scale-out support for ASP.NET Core SignalR using an HTTP forwarder to d
 
 Based on [AspNetCore.SignalR.AzureServiceBus](https://github.com/thomaslevesque/AspNetCore.SignalR.AzureServiceBus) by Thomas Levesque
 
+## Motivation
+
+I wrote a [blog post](http://peterhageus.blogspot.com/2020/09/aspnetcore-signalr-httpforwarder.html) on why this exists.
+
 ## Status 
 
 This is currently experimental. Only tested with Asp.Net Core 3.1.
